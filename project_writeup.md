@@ -1,11 +1,5 @@
 # Project: Follow Me
 
-[fcn]: ./images/fcn.png
-[fcn_conv]: ./images/fcn_conv.png
-[sim_crowd]: ./images/sim_crowd.png
-[sim_zigzag]: ./images/sim_zigzag.png
-[train]: ./images/train.png
-
 ## Introduction
 
 The project task is to locate and follow a moving target. 
@@ -14,13 +8,7 @@ Then we need to classify each pixel of each frame using a fully convolutional ne
 
 ## Data Collection
 
-Perhaps one of the most important tasks when working with a neural network is the collection and preparation of data.
-A simple data set was provided in the project. Also given instructions how to collect additional data using a simulator and data collection best practices.  
-All angles of hero:
-![All angles of hero][sim_zigzag]
-
-The hero in the dense crowd:
-![Hero data in the dense crowd][sim_crowd]
+One of the most important tasks when working with a neural network is the collection and preparation of data. better and more  data better model. A simple data set was provided in the project. Due to the aproaching dead line i used the Sample data provided. I want to try collecting my own data with the simulator and retrain the network. 
 
 ## Network Architecture
 
@@ -31,11 +19,11 @@ The model will consist from:
 * Two decoder layers
 * Skip connections between the encoder and decoder layers
 
-![Network Architecture][fcn_conv]
+![Network Architecture](https://github.com/muchowsn/RoboND-DeepLearning-Project/blob/master/Img/fcn_conv.png)
 
 ### Encoder
 
-The Encoder part extracts features from the image. A deeper encoder, more complex shapes that it can extract.
+The Encoder extracts features from the image. A deeper encoder, more complex shapes that it can extract.
 We will use Separable Convolutions. This is a technique that reduces the number of parameters needed, thus increasing efficiency for the encoder network.  
 The number of filters/feature maps for a given convolutional layer tends to be chosen based on empirical performance rather on theoretical justifications.  
 It is usually more efficient to build a network deeper than wider. Therefore, if the chosen values of the number of filters did not help to achieve the desired result, I would add another layer.
@@ -55,7 +43,7 @@ At the output of the encoder, we have a 4-dimensional tensor. Now we need to ext
 
 ### Decoder
 
-The Decoder part upscale Encoder output back to the input image dimensions. However, when we decode the output of the image back to the original image size some information can be lost. Skip connection is a way of retaining the information easily. In our case, each layer of the Decoder contains a skip connection to the corresponding encoder layer. Skip connection connects the output of one layer to the input of the other. As a result, the network is able to make more precise segmentation decision.
+The Decoder upscales the Encoder output back to the input image dimensions. However, when we decode the output of the image back to the original image size some information can be lost. Skip connection is a way of retaining the information easily. In our case, each layer of the Decoder contains a skip connection to the corresponding encoder layer. Skip connection connects the output of one layer to the input of the other. As a result, the network is able to make more precise segmentation decision.
 
 ```python
 def decoder_block(small_ip_layer, large_ip_layer, filters):
@@ -75,8 +63,8 @@ def decoder_block(small_ip_layer, large_ip_layer, filters):
 ## Training
 
 Because our task is computationally demanding and we have big training set then it is more rational to use GPU for training.
-I already have a [configured](https://medium.com/google-cloud/running-jupyter-notebooks-on-gpu-on-google-cloud-d44f57d22dbd) Compute Engine with NVIDIA Tesla K80 in Google Cloud so I decided to use it.  
-After some time playing with hyperparameters I stopped at the following:  
+I used aws p2.large instance to train the model. next time going to use p2.8xlarge or even p2.16xlarge so training goes quicker.
+
 ```python
 learning_rate = 0.01 # Usually good start point
 batch_size = 128 # Bigger - better, but there is a memory limitation 
@@ -87,9 +75,9 @@ The number of epochs chosen so as to ensure that the training will no longer be 
 The size of the batch is the highest possible for this server to fit the memory.  
 The learning rate was initially chosen as 0.01 and he showed himself well for achieving the goal.  
 
-![Training curves][train]  
+![Training curves](https://github.com/muchowsn/RoboND-DeepLearning-Project/blob/master/Img/train.png)
 
-These hyperparameters and the network architecture helped to achieve the final score `0.42`, which is enough for submission.
+These hyperparameters and the network architecture helped to achieve the final score `0.45`, which is far from perfect but above a passing grade for this project.
 
 ## Future Enhancements
 
@@ -98,7 +86,7 @@ For the task of this project I see the following ways to improve:
 1. Use more layers in Decoder and Encoder, make them deeper.
 2. Use bigger dataset, for example, using data augmentation.
 3. Try to reduce learning rate because validation loss curve is not optimal.
-4. Try different optimizers for example Nadam.
+
 
 ## Conclusion
 
